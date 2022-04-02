@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "conf.h"
+#include "indexsystem/indexmanager.h"
 #include "interfaces.h"
 #include "options.h"
 
@@ -71,6 +72,9 @@ public:
     RetCode garbage_collect() override;
 
 private:
+    static int logFileDescriptor;
+    static IndexManager &indexManager;
+    static unsigned offset;
 };
 
 }  // namespace kvs
