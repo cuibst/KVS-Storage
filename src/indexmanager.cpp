@@ -882,7 +882,7 @@ int IndexManager::rebuildLog(const std::string &path)
     int newLogFileDescriptor = open(newLogPath.c_str(), O_RDWR);
 
     PageNum leaf1 = FindLeafPageFromPage("", indexInfo->rootPageNum);
-    unsigned offset = 0;
+    int offset = 0;
     while (leaf1 != -1)
     {
         LeafNode *leaf11;
@@ -893,6 +893,7 @@ int IndexManager::rebuildLog(const std::string &path)
             std::string value = Engine::loadValue(leaf11->data[i].valueOffset);
             unsigned char *tmp =
                 new unsigned char[key.length() + value.length() + 2];
+            // std::cout << key.length() << " " << value.length() << std::endl;
             for (int i = 0; i < key.length(); i++)
                 tmp[i] = key[i];
             tmp[key.length()] = 254;
@@ -903,12 +904,12 @@ int IndexManager::rebuildLog(const std::string &path)
             leaf11->data[i].keyOffset = offset;
             leaf11->data[i].valueOffset = offset + key.length() + 1;
             offset += key.length() + value.length() + 2;
+            delete[] tmp;
         }
         fileHandle.MarkDirty(leaf1);
         fileHandle.ForcePages(leaf1);
         leaf1 = leaf11->rightPage;
     }
-
     close(newLogFileDescriptor);
 
     ForcePages();

@@ -144,6 +144,7 @@ RetCode Engine::put(const Key &key, const Value &value)
         tmp[key.length() + i + 1] = value[i];
     tmp[key.length() + value.length() + 1] = 255;
     mt.lock();
+    assert(logFileDescriptor != -1);
     // std::cout << "put " << key << " " << offset << std::endl;
     off_t error = lseek(logFileDescriptor, offset, SEEK_SET);
     assert(error == offset);
@@ -237,8 +238,13 @@ RetCode Engine::garbage_collect()
     mt.lock();
     offset = indexManager.rebuildLog(path);
     close(logFileDescriptor);
-    unlink(oldLogPath.c_str());
-    rename(newLogPath.c_str(), oldLogPath.c_str());
+    file = fopen(newLogPath.c_str(), "r");
+    FILE *logFile = fopen(oldLogPath.c_str(), "w");
+    unsigned char x;
+    while (fscanf(file, "%c", &x) != EOF)
+        fprintf(logFile, "%c", x);
+    fclose(file);
+    fclose(logFile);
     logFileDescriptor = open(oldLogPath.c_str(), O_RDWR);
     mt.unlock();
     return RetCode::kSucc;
