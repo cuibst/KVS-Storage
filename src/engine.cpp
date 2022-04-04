@@ -15,6 +15,7 @@ namespace kvs
 
 int Engine::logFileDescriptor = -1;
 unsigned Engine::offset = 0;
+bool Engine::hasDeleteOp = false;
 
 static std::mutex mt;
 
@@ -167,6 +168,7 @@ RetCode Engine::remove(const Key &key)
     // TODO: your code here
     std::ignore = key;
     mt.lock();
+    hasDeleteOp = true;
     // std::cout << "remove " << key << " " << offset << std::endl;
     unsigned offset1;
     bool res = indexManager.getEntry(key, offset1);
@@ -240,6 +242,12 @@ RetCode Engine::garbage_collect()
     std::string oldLogPath = path + "/" + "kvslog.log";
     // TODO: your code here
     mt.lock();
+    if (!hasDeleteOp)
+    {
+        mt.unlock();
+        return RetCode::kSucc;
+    }
+    hasDeleteOp = false;
     offset = indexManager.rebuildLog(path);
     close(logFileDescriptor);
     file = fopen(newLogPath.c_str(), "r");
