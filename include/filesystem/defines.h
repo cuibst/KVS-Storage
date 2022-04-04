@@ -6,52 +6,53 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-/*
- * 一个页面中的字节数
- */
-#define PAGE_SIZE 8192
-/*
- * 一个页面中的整数个数
- */
-#define PAGE_INT_NUM 2048
-/*
- * 页面字节数以2为底的指数
- */
-#define PAGE_SIZE_IDX 13
-#define MAX_FMT_INT_NUM 128
-//#define BUF_PAGE_NUM 65536
-#define MAX_FILE_NUM 128
-#define MAX_TYPE_NUM 256
-/*
- * 缓存中页面个数上限
- */
-#define CAP 60000
-/*
- * hash算法的模
- */
-#define MOD 60000
-#define IN_DEBUG 0
-#define DEBUG_DELETE 0
-#define DEBUG_ERASE 1
-#define DEBUG_NEXT 1
-/*
- * 一个表中列的上限
- */
-#define MAX_COL_NUM 31
-/*
- * 数据库中表的个数上限
- */
-#define MAX_TB_NUM 31
-#define RELEASE 1
-typedef unsigned int *BufType;
-typedef unsigned int uint;
-typedef unsigned short ushort;
-typedef unsigned char uchar;
-typedef unsigned long long ull;
-typedef long long ll;
-typedef double db;
-typedef int INT;
-typedef int(cf)(uchar *, uchar *);
-int current = 0;
-int tt = 0;
+
+typedef int RC;
+const int ALL_PAGES = -1;
+#ifndef BOOLEAN
+typedef char Boolean;
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+enum NodeType
+{
+    ROLeaf,
+    ROInternal,
+    Leaf,
+    Internal
+};
+
+typedef long PageNum;
+
+#define OK_RC 0  // OK_RC return code is guaranteed to always be 0
+
+#define START_PF_ERR (-1)
+#define END_PF_ERR (-100)
+#define START_RM_ERR (-101)
+#define END_RM_ERR (-200)
+#define START_IX_ERR (-201)
+#define END_IX_ERR (-300)
+#define START_SM_ERR (-301)
+#define END_SM_ERR (-400)
+#define START_QL_ERR (-401)
+#define END_QL_ERR (-500)
+
+#define START_PF_WARN 1
+#define END_PF_WARN 100
+#define START_RM_WARN 101
+#define END_RM_WARN 200
+#define START_IX_WARN 201
+#define END_IX_WARN 300
+#define START_SM_WARN 301
+#define END_SM_WARN 400
+#define START_QL_WARN 401
+#define END_QL_WARN 500
+
 #endif

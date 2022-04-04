@@ -69,7 +69,8 @@ inline void validate_visit(const std::map<Key, Value> &kv,
                            const TestCase &c)
 {
     size_t got = 0;
-    auto visitor = [&got, &c, &kv](const Key &key, const Value &value) {
+    auto visitor = [&got, &c, &kv](const Key &key, const Value &value)
+    {
         auto it = kv.find(key);
         if (it == kv.end())
         {
@@ -174,7 +175,6 @@ public:
                  size_t limit = std::numeric_limits<size_t>::max())
     {
         size_t end = std::min(bench.size(), from_idx + limit);
-
         for (size_t i = from_idx; i < end; ++i)
         {
             const auto &c = bench[i];
