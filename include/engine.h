@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "conf.h"
+#include "filesystem/defines.h"
 #include "interfaces.h"
 #include "options.h"
 
@@ -15,6 +16,9 @@ namespace kvs
  * The actual Engine you need to implement
  * TODO: your code
  */
+
+class IndexManager;
+
 class Engine : public IEngine
 {
 public:
@@ -70,7 +74,18 @@ public:
      */
     RetCode garbage_collect() override;
 
+    static Key loadKey(unsigned offset);
+    static Value loadValue(unsigned offset);
+    static void loadKeyValue(Key &key, Value &value, unsigned offset);
+    void setRootPageNum(PageNum root);
+
 private:
+    static int logFileDescriptor;
+    IndexManager &indexManager;
+    static unsigned offset;
+    PageNum rootPageNum;
+    const std::string &path;
+    const EngineOptions &options;
 };
 
 }  // namespace kvs

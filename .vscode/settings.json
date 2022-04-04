@@ -53,7 +53,9 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "bit": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "codecvt": "cpp",
+        "iomanip": "cpp"
     },
     "editor.formatOnSave": true
 }

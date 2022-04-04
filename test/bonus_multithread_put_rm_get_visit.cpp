@@ -42,10 +42,12 @@ int main(int argc, char *argv[])
     LOG(INFO) << "Starting tests...";
     for (size_t i = 0; i < FLAGS_thread_nr; ++i)
     {
-        threads.emplace_back([engine, &test_case = test_cases[i]]() {
-            EngineValidator executor(engine);
-            executor.execute(test_case);
-        });
+        threads.emplace_back(
+            [engine, &test_case = test_cases[i]]()
+            {
+                EngineValidator executor(engine);
+                executor.execute(test_case);
+            });
     }
 
     for (auto &t : threads)
