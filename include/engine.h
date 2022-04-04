@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "conf.h"
-#include "filesystem/defines.h"
+#include "defines.h"
 #include "interfaces.h"
 #include "options.h"
 

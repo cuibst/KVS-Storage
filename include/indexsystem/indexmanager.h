@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 
-#include "../filesystem/pf.h"
+#include "../filesystem/manager.h"
 #include "treenode.h"
 #define MAX_DEPTH 1010
 
@@ -25,11 +25,11 @@ struct RID
 class IndexManager
 {
 private:
-    IndexManager(PF_Manager *pfm, const std::string &fileName);
+    IndexManager(Manager *pfm, const std::string &fileName);
     std::map<std::string, unsigned> indices;
 
-    PF_FileHandle fileHandle;
-    PF_Manager *pfm;
+    FileHandle fileHandle;
+    Manager *pfm;
     IndexInfo *indexInfo;
     int attrOffset;
     PageNum pinnedPageList[MAX_DEPTH];
@@ -37,7 +37,7 @@ private:
     PageNum disposedPageList[MAX_DEPTH];
     int disposedPageNum;
 
-    // PF_PageHandle inMemory[100];
+    // PageHandle inMemory[100];
     // bool mark[100];
 
     void InsertEntryFromPage(const std::string &key,
@@ -56,8 +56,8 @@ private:
     void getPageData(const PageNum pageNum, char *&pageData);
     void getLeafNode(const PageNum pageNum, LeafNode *&leafNode);
     void getInternalNode(const PageNum pageNum, InternalNode *&internalNode);
-    PageNum allocateNewPage(PF_PageHandle &pageHandle);
-    void getExistedPage(PageNum pageNum, PF_PageHandle &pageHandle);
+    PageNum allocateNewPage(PageHandle &pageHandle);
+    void getExistedPage(PageNum pageNum, PageHandle &pageHandle);
 
     void addPinnedPage(const PageNum pageNum);
     void addDisposedPage(const PageNum pageNum);

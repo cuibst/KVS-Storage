@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef _ZIPF_H_
-#define _ZIPF_H_
+#ifndef _ZIH_
+#define _ZIH_
 
 #include <assert.h>
 #include <math.h>
@@ -181,7 +181,7 @@ static uint64_t mehcached_zipf_next(struct zipf_gen_state *state)
     else if (state->theta == 0.)
     {
         double u = mehcached_rand_d(&state->rand_state);
-        return (uint64_t)(state->dbl_n * u);
+        return (uint64_t) (state->dbl_n * u);
     }
     else if (state->theta >= 40.)
     {
@@ -200,9 +200,9 @@ static uint64_t mehcached_zipf_next(struct zipf_gen_state *state)
         else if (uz < state->thres)
             return 1UL;
         else
-            return (uint64_t)(
-                state->dbl_n *
-                mehcached_pow_approx(state->eta * (u - 1.) + 1., state->alpha));
+            return (uint64_t) (state->dbl_n *
+                               mehcached_pow_approx(state->eta * (u - 1.) + 1.,
+                                                    state->alpha));
     }
 }
 

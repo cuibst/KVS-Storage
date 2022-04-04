@@ -19,8 +19,7 @@ RID::RID(int ko, int vo) : keyOffset(ko), valueOffset(vo)
 {
 }
 
-IndexManager::IndexManager(PF_Manager *pfm, const std::string &fileName)
-    : pfm(pfm)
+IndexManager::IndexManager(Manager *pfm, const std::string &fileName) : pfm(pfm)
 {
     RC rc;
     rc = pfm->CreateFile(fileName.c_str());
@@ -28,7 +27,7 @@ IndexManager::IndexManager(PF_Manager *pfm, const std::string &fileName)
     {
         (rc = pfm->OpenFile(fileName.c_str(), fileHandle));
         assert(rc == 0);
-        PF_PageHandle pageHandle;
+        PageHandle pageHandle;
         char *pageData;
         pinnedPageNum = 0;
         disposedPageNum = 0;
@@ -39,7 +38,7 @@ IndexManager::IndexManager(PF_Manager *pfm, const std::string &fileName)
     }
     rc = pfm->OpenFile(fileName.c_str(), fileHandle);
     assert(rc == 0);
-    PF_PageHandle pageHandle;
+    PageHandle pageHandle;
     fileHandle.AllocatePage(pageHandle);
     char *pageData;
     pageHandle.GetData(pageData);
@@ -91,7 +90,7 @@ void IndexManager::InsertEntryFromPage(const std::string &key,
 {
     // if (key == "0")
     //     std::cout << "insert " << key << " " << pageNum << std::endl;
-    PF_PageHandle pageHandle, fatherPageHandle;
+    PageHandle pageHandle, fatherPageHandle;
     char *pageData, *fatherPageData;
     if (pageNum == -1)
         pageNum = allocateNewPage(pageHandle);
@@ -146,7 +145,7 @@ void IndexManager::InsertEntryFromPage(const std::string &key,
 
         if (leafNode->size > 2 * D)
         {
-            PF_PageHandle splitNodePageHandle;
+            PageHandle splitNodePageHandle;
             PageNum splitNodePageNum = allocateNewPage(splitNodePageHandle);
             fileHandle.MarkDirty(splitNodePageNum);
             fileHandle.MarkDirty(pageNum);
@@ -163,7 +162,7 @@ void IndexManager::InsertEntryFromPage(const std::string &key,
             fileHandle.ForcePages(splitNodePageNum);
             if (splitNode->rightPage != -1)
             {
-                PF_PageHandle splitRightPageHandle;
+                PageHandle splitRightPageHandle;
                 getExistedPage(splitNode->rightPage, splitRightPageHandle);
                 char *splitRightPageData;
                 splitRightPageHandle.GetData(splitRightPageData);
@@ -254,7 +253,7 @@ void IndexManager::InsertEntryFromPage(const std::string &key,
 
         if (internalNode->keyCount == D * 2)
         {
-            PF_PageHandle splitNodePageHandle;
+            PageHandle splitNodePageHandle;
             PageNum splitNodePageNum = allocateNewPage(splitNodePageHandle);
             fileHandle.MarkDirty(splitNodePageNum);
             fileHandle.MarkDirty(pageNum);
@@ -323,7 +322,7 @@ RC IndexManager::DeleteEntryFromPage(const std::string &key,
                                      int thisPos)
 {
     char *pageData, *fatherPageData;
-    PF_PageHandle pageHandle, fatherPageHandle;
+    PageHandle pageHandle, fatherPageHandle;
     getExistedPage(pageNum, pageHandle);
     pageHandle.GetData(pageData);
     // getPageData(pageNum, pageData);
@@ -429,7 +428,7 @@ RC IndexManager::DeleteEntryFromPage(const std::string &key,
                 addDisposedPage(pageNum);
                 if (leafNode->leftPage != -1)
                 {
-                    PF_PageHandle leftPageHandle;
+                    PageHandle leftPageHandle;
                     getExistedPage(leafNode->leftPage, leftPageHandle);
                     char *leftPageData;
                     leftPageHandle.GetData(leftPageData);
@@ -441,7 +440,7 @@ RC IndexManager::DeleteEntryFromPage(const std::string &key,
                 }
                 if (leafNode->rightPage != -1)
                 {
-                    PF_PageHandle rightPageHandle;
+                    PageHandle rightPageHandle;
                     getExistedPage(leafNode->rightPage, rightPageHandle);
                     char *rightPageData;
                     rightPageHandle.GetData(rightPageData);
@@ -497,7 +496,7 @@ bool IndexManager::deleteEntry(const std::string &key, unsigned keyOffset)
 IndexManager &IndexManager::getInstance(const std::string &indexFileName)
 {
     // std::cout << "logging" << std::endl;
-    static PF_Manager manager;
+    static Manager manager;
     // std::cout << "logging" << std::endl;
     static IndexManager im(&manager, indexFileName);
     // std::cout << "logging" << std::endl;
@@ -547,7 +546,7 @@ int IndexManager::getLeafNodeSize(const PageNum pageNum)
 
 void IndexManager::getPageData(const PageNum pageNum, char *&pageData)
 {
-    PF_PageHandle pageHandle;
+    PageHandle pageHandle;
     assert(pageNum != -1);
     getExistedPage(pageNum, pageHandle);
     pageHandle.GetData(pageData);
@@ -573,7 +572,7 @@ PageNum IndexManager::FindLeafPageFromPage(const std::string &key,
 {
     // std::cout << "tree find " << key << " " << pageNum << std::endl;
     PageNum result = -1;
-    PF_PageHandle pageHandle;
+    PageHandle pageHandle;
     fileHandle.GetThisPage(pageNum, pageHandle);
     char *pageData;
     pageHandle.GetData(pageData);
@@ -609,7 +608,7 @@ LeafNode IndexManager::FindLeafNode(const std::string &key, PageNum root)
     PageNum leafPage =
         FindLeafPageFromPage(key, root == -1 ? indexInfo->rootPageNum : root);
     // std::cout << "find done with " << leafPage << std::endl;
-    PF_PageHandle pageHandle;
+    PageHandle pageHandle;
     fileHandle.GetThisPage(leafPage, pageHandle);
     char *pageData;
     pageHandle.GetData(pageData);
@@ -691,7 +690,7 @@ end:;
     unpinAllPages();
 }
 
-PageNum IndexManager::allocateNewPage(PF_PageHandle &pageHandle)
+PageNum IndexManager::allocateNewPage(PageHandle &pageHandle)
 {
     fileHandle.AllocatePage(pageHandle);
     PageNum pageNum;
@@ -700,7 +699,7 @@ PageNum IndexManager::allocateNewPage(PF_PageHandle &pageHandle)
     return pageNum;
 }
 
-void IndexManager::getExistedPage(PageNum pageNum, PF_PageHandle &pageHandle)
+void IndexManager::getExistedPage(PageNum pageNum, PageHandle &pageHandle)
 {
     fileHandle.GetThisPage(pageNum, pageHandle);
     addPinnedPage(pageNum);
@@ -740,7 +739,7 @@ void IndexManager::disposeAllPages()
 
     if (rebuild)
     {
-        PF_PageHandle pageHandle;
+        PageHandle pageHandle;
         PageNum pageNum;
         char *pageData;
         fileHandle.AllocatePage(pageHandle);
@@ -772,7 +771,7 @@ PageNum IndexManager::getRootPageNum()
 void IndexManager::persistentAllNode(PageNum pageNum,
                                      std::map<PageNum, PageNum> &pageMapping)
 {
-    PF_PageHandle pageHandle;
+    PageHandle pageHandle;
     char *pageData;
     if (pageNum == -1)
         pageNum = allocateNewPage(pageHandle);
@@ -785,7 +784,7 @@ void IndexManager::persistentAllNode(PageNum pageNum,
 
     if (nodePagePacket->type == NodeType::Leaf)
     {
-        PF_PageHandle copyPageHandle;
+        PageHandle copyPageHandle;
         char *copyPageData;
         PageNum copyPageNum = allocateNewPage(copyPageHandle);
         copyPageHandle.GetData(copyPageData);
@@ -795,7 +794,7 @@ void IndexManager::persistentAllNode(PageNum pageNum,
         if (leaf.leftPage != -1)
         {
             PageNum mappedLeftPage = pageMapping[leaf.leftPage];
-            PF_PageHandle mappedLeftHandle;
+            PageHandle mappedLeftHandle;
             getExistedPage(mappedLeftPage, mappedLeftHandle);
             char *mappedLeftPageData;
             mappedLeftHandle.GetData(mappedLeftPageData);
@@ -816,7 +815,7 @@ void IndexManager::persistentAllNode(PageNum pageNum,
     else if (nodePagePacket->type == NodeType::Internal)
     {
         InternalNode &internalNode = nodePagePacket->internalNode;
-        PF_PageHandle copyPageHandle;
+        PageHandle copyPageHandle;
         char *copyPageData;
         PageNum copyPageNum = allocateNewPage(copyPageHandle);
         copyPageHandle.GetData(copyPageData);
