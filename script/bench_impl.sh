@@ -13,4 +13,16 @@ mkdir -p "${DIR}"
 
 bash -c "./bench/bench --kvdir ${DIR} $@"
 
+rm -rf "${DIR:?}/"
+mkdir -p "${DIR}"
+bash -c "./bench/bench_visit --kvdir ${DIR} $@"
+
+rm -rf "${DIR:?}/"
+mkdir -p "${DIR}"
+bash -c "./bench/bench_gc --kvdir ${DIR} $@"
+
+rm -rf "${DIR:?}/"
+mkdir -p "${DIR}"
+bash -c "./bench/bench_snapshot --kvdir ${DIR} $@"
+
 cd ../bench || exit 1

@@ -81,6 +81,7 @@ public:
 
 private:
     static int logFileDescriptor;
+    static bool hasDeleteOp;
     IndexManager &indexManager;
     static unsigned offset;
     PageNum rootPageNum;
