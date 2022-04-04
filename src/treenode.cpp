@@ -99,4 +99,13 @@ void LeafNode::operator=(const LeafNode &x)
     rightPage = x.rightPage;
 }
 
+LeafNode::LeafNode(const LeafNode &x)
+{
+    size = x.size;
+    for (int i = 0; i < size; i++)
+        data[i] = x.data[i];
+    leftPage = x.leftPage;
+    rightPage = x.rightPage;
+}
+
 }  // namespace kvs

@@ -22,6 +22,7 @@ std::string Engine::loadKey(unsigned keyOffset)
 {
     assert(logFileDescriptor != -1);
     off_t error = lseek(logFileDescriptor, keyOffset, SEEK_SET);
+    std::ignore = error;
     assert(error == keyOffset);
     unsigned char *tmp = new unsigned char[kMaxKeySize + 1];
     error = read(logFileDescriptor, (void *) tmp, kMaxKeySize + 1);
@@ -37,6 +38,7 @@ std::string Engine::loadValue(unsigned valueOffset)
 {
     assert(logFileDescriptor != -1);
     off_t error = lseek(logFileDescriptor, valueOffset, SEEK_SET);
+    std::ignore = error;
     assert(error == valueOffset);
     unsigned char *tmp = new unsigned char[kMaxValueSize + 1];
     error = read(logFileDescriptor, (void *) tmp, kMaxValueSize + 1);
@@ -52,6 +54,7 @@ void Engine::loadKeyValue(Key &key, Value &value, unsigned keyOffset)
 {
     assert(logFileDescriptor != -1);
     off_t error = lseek(logFileDescriptor, keyOffset, SEEK_SET);
+    std::ignore = error;
     assert(error == keyOffset);
     unsigned char *tmp = new unsigned char[kMaxKeySize + kMaxValueSize + 2];
     error =
@@ -101,7 +104,6 @@ Engine::Engine(const std::string &path, EngineOptions options)
                 if (x == 254)
                 {
                     indexManager.insertEntry(keyBuf, storeOffset, offset);
-                    unsigned tmp;
                     keyBuf = "";
                     flag = true;
                 }
@@ -137,16 +139,17 @@ RetCode Engine::put(const Key &key, const Value &value)
     std::ignore = key;
     std::ignore = value;
     unsigned char *tmp = new unsigned char[key.length() + value.length() + 2];
-    for (int i = 0; i < key.length(); i++)
+    for (unsigned long i = 0; i < key.length(); i++)
         tmp[i] = key[i];
     tmp[key.length()] = 254;
-    for (int i = 0; i < value.length(); i++)
+    for (unsigned long i = 0; i < value.length(); i++)
         tmp[key.length() + i + 1] = value[i];
     tmp[key.length() + value.length() + 1] = 255;
     mt.lock();
     assert(logFileDescriptor != -1);
     // std::cout << "put " << key << " " << offset << std::endl;
     off_t error = lseek(logFileDescriptor, offset, SEEK_SET);
+    std::ignore = error;
     assert(error == offset);
     unsigned storeOffset = offset;
     error = write(
@@ -170,10 +173,11 @@ RetCode Engine::remove(const Key &key)
     if (res)
     {
         unsigned char *tmp = new unsigned char[key.length() + 1];
-        for (int i = 0; i < key.length(); i++)
+        for (unsigned long i = 0; i < key.length(); i++)
             tmp[i] = key[i];
         tmp[key.length()] = 253;
         off_t error = lseek(logFileDescriptor, offset, SEEK_SET);
+        std::ignore = error;
         assert(error == offset);
         error = write(logFileDescriptor, (void *) tmp, key.length() + 1);
         indexManager.deleteEntry(key, offset);

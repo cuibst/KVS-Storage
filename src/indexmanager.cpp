@@ -322,7 +322,6 @@ RC IndexManager::DeleteEntryFromPage(const std::string &key,
                                      PageNum fatherPageNum,
                                      int thisPos)
 {
-    RC rc;
     char *pageData, *fatherPageData;
     PF_PageHandle pageHandle, fatherPageHandle;
     getExistedPage(pageNum, pageHandle);
@@ -573,7 +572,7 @@ PageNum IndexManager::FindLeafPageFromPage(const std::string &key,
                                            PageNum pageNum)
 {
     // std::cout << "tree find " << key << " " << pageNum << std::endl;
-    PageNum result;
+    PageNum result = -1;
     PF_PageHandle pageHandle;
     fileHandle.GetThisPage(pageNum, pageHandle);
     char *pageData;
@@ -594,7 +593,7 @@ PageNum IndexManager::FindLeafPageFromPage(const std::string &key,
                 result = FindLeafPageFromPage(key, internalNode->child[i - 1]);
                 break;
             }
-            if (i == internalNode->keyCount + 1)
+            else if (i == internalNode->keyCount + 1)
             {
                 result = FindLeafPageFromPage(
                     key, internalNode->child[internalNode->keyCount]);
@@ -894,13 +893,15 @@ int IndexManager::rebuildLog(const std::string &path)
             unsigned char *tmp =
                 new unsigned char[key.length() + value.length() + 2];
             // std::cout << key.length() << " " << value.length() << std::endl;
-            for (int i = 0; i < key.length(); i++)
+            for (unsigned long i = 0; i < key.length(); i++)
                 tmp[i] = key[i];
             tmp[key.length()] = 254;
-            for (int i = 0; i < value.length(); i++)
+            for (unsigned long i = 0; i < value.length(); i++)
                 tmp[key.length() + i + 1] = value[i];
             tmp[key.length() + value.length() + 1] = 255;
-            write(newLogFileDescriptor, tmp, key.length() + value.length() + 2);
+            ssize_t ret = write(
+                newLogFileDescriptor, tmp, key.length() + value.length() + 2);
+            std::ignore = ret;
             leaf11->data[i].keyOffset = offset;
             leaf11->data[i].valueOffset = offset + key.length() + 1;
             offset += key.length() + value.length() + 2;

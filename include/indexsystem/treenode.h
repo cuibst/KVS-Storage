@@ -25,6 +25,7 @@ struct LeafNode
     void deleteDataAtPos(int pos);
     void split(LeafNode *splitNode, PageNum newPage, PageNum curPage);
     void operator=(const LeafNode &);
+    LeafNode(const LeafNode &);
 };
 
 struct InternalNode
